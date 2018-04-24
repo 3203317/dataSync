@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.foreworld.yx.db.model.BinlogMasterStatus;
-import net.foreworld.yx.db.model.SendData;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +17,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import net.foreworld.yx.model.BinlogMasterStatus;
+import net.foreworld.yx.model.SendData;
 
 /**
  *
@@ -57,8 +57,7 @@ public final class MonitorDbUtil {
 		PASS = pass;
 	}
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(MonitorDbUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(MonitorDbUtil.class);
 
 	/**
 	 *
@@ -66,8 +65,7 @@ public final class MonitorDbUtil {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public static Connection getConn() throws ClassNotFoundException,
-			SQLException {
+	public static Connection getConn() throws ClassNotFoundException, SQLException {
 		Class.forName(DRIVERCLASS);
 		return DriverManager.getConnection(HOST, USER, PASS);
 	}
@@ -274,8 +272,7 @@ public final class MonitorDbUtil {
 		try {
 			conn = getConn();
 
-			ps1 = conn
-					.prepareStatement("INSERT INTO s_sql (s_q_l, topic_name) VALUES (?, ?)");
+			ps1 = conn.prepareStatement("INSERT INTO s_sql (s_q_l, topic_name) VALUES (?, ?)");
 			ps1.setObject(1, sql);
 			ps1.setObject(2, topic_name);
 			ps1.execute();
@@ -390,8 +387,7 @@ public final class MonitorDbUtil {
 	 * @param binlog_file_name
 	 * @param binlog_position
 	 */
-	public static void setCfgBinlog(String binlog_file_name,
-			String binlog_position) {
+	public static void setCfgBinlog(String binlog_file_name, String binlog_position) {
 		Connection conn = null;
 		PreparedStatement ps1 = null;
 		PreparedStatement ps2 = null;

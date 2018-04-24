@@ -18,6 +18,8 @@
 		<java.version>1.8</java.version>
 		<!-- 依赖版本 -->
 		<spring.version>1.5.3.RELEASE</spring.version>
+		<mybatis.version>3.3.0</mybatis.version>
+		<mapper.version>3.3.0</mapper.version>
 	</properties>
 
 	<dependencies>

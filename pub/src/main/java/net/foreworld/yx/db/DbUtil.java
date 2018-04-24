@@ -12,16 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.foreworld.yx.db.model.BinlogMasterStatus;
-import net.foreworld.yx.db.model.DbTable;
-import net.foreworld.yx.db.model.DbTableColumn;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.google.code.or.binlog.impl.event.TableMapEvent;
+
+import net.foreworld.yx.model.BinlogMasterStatus;
+import net.foreworld.yx.model.DbTable;
+import net.foreworld.yx.model.DbTableColumn;
 
 /**
  *
@@ -68,8 +68,7 @@ public final class DbUtil {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public static synchronized void reloaddbTableColumnMapMap()
-			throws ClassNotFoundException, SQLException {
+	public static synchronized void reloaddbTableColumnMapMap() throws ClassNotFoundException, SQLException {
 		dbTableColumnMap = getDbTableColumns();
 	}
 
@@ -123,8 +122,7 @@ public final class DbUtil {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	private static Connection getConn() throws ClassNotFoundException,
-			SQLException {
+	private static Connection getConn() throws ClassNotFoundException, SQLException {
 		Class.forName(DRIVERCLASS);
 		String url = "jdbc:mysql://" + HOST + ":" + PORT;
 		return DriverManager.getConnection(url, USER, PASS);
@@ -136,8 +134,7 @@ public final class DbUtil {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	private static Map<String, List<DbTableColumn>> getDbTableColumns()
-			throws ClassNotFoundException, SQLException {
+	private static Map<String, List<DbTableColumn>> getDbTableColumns() throws ClassNotFoundException, SQLException {
 		Map<String, List<DbTableColumn>> dbTableColumnMap = new HashMap<String, List<DbTableColumn>>();
 
 		DatabaseMetaData metaData = getConn().getMetaData();
@@ -147,13 +144,11 @@ public final class DbUtil {
 
 		while (_catalogs.next()) {
 			String dbName = _catalogs.getString("TABLE_CAT");
-			ResultSet _tables = metaData.getTables(dbName, null, null,
-					tableType);
+			ResultSet _tables = metaData.getTables(dbName, null, null, tableType);
 
 			while (_tables.next()) {
 				String tableName = _tables.getString("TABLE_NAME");
-				ResultSet _columns = metaData.getColumns(dbName, null,
-						tableName, null);
+				ResultSet _columns = metaData.getColumns(dbName, null, tableName, null);
 
 				String fullname = dbName + "." + tableName;
 				dbTableColumnMap.put(fullname, new ArrayList<DbTableColumn>());

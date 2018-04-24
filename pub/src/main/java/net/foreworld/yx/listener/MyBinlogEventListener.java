@@ -5,11 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.foreworld.yx.db.DbUtil;
-import net.foreworld.yx.db.MonitorDbUtil;
-import net.foreworld.yx.db.model.DbTable;
-import net.foreworld.yx.db.model.DbTableColumn;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +17,6 @@ import com.google.code.or.binlog.impl.event.QueryEvent;
 import com.google.code.or.binlog.impl.event.TableMapEvent;
 import com.google.code.or.binlog.impl.event.UpdateRowsEventV2;
 import com.google.code.or.binlog.impl.event.WriteRowsEventV2;
-import com.google.code.or.binlog.impl.event.XidEvent;
 import com.google.code.or.common.glossary.Column;
 import com.google.code.or.common.glossary.Pair;
 import com.google.code.or.common.glossary.Row;
@@ -30,6 +24,11 @@ import com.google.code.or.common.util.MySQLConstants;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+import net.foreworld.yx.db.DbUtil;
+import net.foreworld.yx.db.MonitorDbUtil;
+import net.foreworld.yx.model.DbTable;
+import net.foreworld.yx.model.DbTableColumn;
 
 /**
  *
@@ -44,8 +43,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 	@Value("${monitor.db.table}")
 	private String monitor_db_table;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(MyBinlogEventListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(MyBinlogEventListener.class);
 
 	@Override
 	public void onEvents(BinlogEventV4 be) {
@@ -64,8 +62,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 		}
 
 		case MySQLConstants.UPDATE_ROWS_EVENT_V2: {
-			logger.info("UPDATE_ROWS_EVENT_V2: {}",
-					MySQLConstants.UPDATE_ROWS_EVENT_V2);
+			logger.info("UPDATE_ROWS_EVENT_V2: {}", MySQLConstants.UPDATE_ROWS_EVENT_V2);
 			try {
 				UPDATE_ROWS_EVENT_V2((UpdateRowsEventV2) be);
 			} catch (ClassNotFoundException | SQLException e) {
@@ -75,8 +72,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 		}
 
 		case MySQLConstants.WRITE_ROWS_EVENT_V2: {
-			logger.info("WRITE_ROWS_EVENT_V2: {}",
-					MySQLConstants.WRITE_ROWS_EVENT_V2);
+			logger.info("WRITE_ROWS_EVENT_V2: {}", MySQLConstants.WRITE_ROWS_EVENT_V2);
 			try {
 				WRITE_ROWS_EVENT_V2((WriteRowsEventV2) be);
 			} catch (ClassNotFoundException | SQLException e) {
@@ -86,8 +82,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 		}
 
 		case MySQLConstants.DELETE_ROWS_EVENT_V2: {
-			logger.info("DELETE_ROWS_EVENT_V2: {}",
-					MySQLConstants.DELETE_ROWS_EVENT_V2);
+			logger.info("DELETE_ROWS_EVENT_V2: {}", MySQLConstants.DELETE_ROWS_EVENT_V2);
 			try {
 				DELETE_ROWS_EVENT_V2((DeleteRowsEventV2) be);
 			} catch (ClassNotFoundException | SQLException e) {
@@ -96,12 +91,12 @@ public class MyBinlogEventListener implements BinlogEventListener {
 			break;
 		}
 
-		 case MySQLConstants.XID_EVENT: {
-		 logger.info("XID_EVENT: {}", MySQLConstants.XID_EVENT);
-		 XidEvent xe = (XidEvent) be;
-		 logger.info("xid event xid: {}", xe.getXid());
-		 break;
-		 }
+		// case MySQLConstants.XID_EVENT: {
+		// logger.info("XID_EVENT: {}", MySQLConstants.XID_EVENT);
+		// XidEvent xe = (XidEvent) be;
+		// logger.info("xid event xid: {}", xe.getXid());
+		// break;
+		// }
 
 		case MySQLConstants.QUERY_EVENT: {
 			logger.info("QUERY_EVENT: {}", MySQLConstants.QUERY_EVENT);
@@ -126,8 +121,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	private void QUERY_EVENT(QueryEvent qe) throws ClassNotFoundException,
-			SQLException {
+	private void QUERY_EVENT(QueryEvent qe) throws ClassNotFoundException, SQLException {
 
 		MonitorDbUtil.setCfgBinlog();
 
@@ -136,8 +130,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 			return;
 		}
 
-		String topic_name = checkExist(qe.getDatabaseName().toString(), "*",
-				null);
+		String topic_name = checkExist(qe.getDatabaseName().toString(), "*", null);
 
 		if (null == topic_name)
 			return;
@@ -162,13 +155,11 @@ public class MyBinlogEventListener implements BinlogEventListener {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	private void WRITE_ROWS_EVENT_V2(WriteRowsEventV2 wrev)
-			throws ClassNotFoundException, SQLException {
+	private void WRITE_ROWS_EVENT_V2(WriteRowsEventV2 wrev) throws ClassNotFoundException, SQLException {
 
 		DbTable dbTable = DbUtil.getDbTable(wrev.getTableId());
 
-		String topic_name = checkExist(dbTable.getDbName(), dbTable.getName(),
-				null);
+		String topic_name = checkExist(dbTable.getDbName(), dbTable.getName(), null);
 
 		if (null == topic_name)
 			return;
@@ -188,8 +179,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 		for (int i = 0; i < lr.size(); i++) {
 			List<Column> lc = lr.get(i).getColumns();
 
-			Map<String, String> afterMap = getDbTableColumnMap(lc,
-					dbTable.getDbName(), dbTable.getName());
+			Map<String, String> afterMap = getDbTableColumnMap(lc, dbTable.getDbName(), dbTable.getName());
 
 			if (null != afterMap && 0 < afterMap.size()) {
 				jo.addProperty("after", gson.toJson(afterMap));
@@ -206,12 +196,10 @@ public class MyBinlogEventListener implements BinlogEventListener {
 	 * @throws SQLException
 	 * @throws ClassNotFoundException
 	 */
-	private void DELETE_ROWS_EVENT_V2(DeleteRowsEventV2 drev)
-			throws ClassNotFoundException, SQLException {
+	private void DELETE_ROWS_EVENT_V2(DeleteRowsEventV2 drev) throws ClassNotFoundException, SQLException {
 		DbTable dbTable = DbUtil.getDbTable(drev.getTableId());
 
-		String topic_name = checkExist(dbTable.getDbName(), dbTable.getName(),
-				null);
+		String topic_name = checkExist(dbTable.getDbName(), dbTable.getName(), null);
 
 		if (null == topic_name)
 			return;
@@ -231,8 +219,7 @@ public class MyBinlogEventListener implements BinlogEventListener {
 		for (int i = 0; i < lr.size(); i++) {
 			List<Column> lc = lr.get(i).getColumns();
 
-			Map<String, String> beforeMap = getDbTableColumnMap(lc,
-					dbTable.getDbName(), dbTable.getName());
+			Map<String, String> beforeMap = getDbTableColumnMap(lc, dbTable.getDbName(), dbTable.getName());
 
 			if (null != beforeMap && 0 < beforeMap.size()) {
 				jo.addProperty("before", gson.toJson(beforeMap));
@@ -249,12 +236,10 @@ public class MyBinlogEventListener implements BinlogEventListener {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	private void UPDATE_ROWS_EVENT_V2(UpdateRowsEventV2 urev)
-			throws ClassNotFoundException, SQLException {
+	private void UPDATE_ROWS_EVENT_V2(UpdateRowsEventV2 urev) throws ClassNotFoundException, SQLException {
 		DbTable dbTable = DbUtil.getDbTable(urev.getTableId());
 
-		String topic_name = checkExist(dbTable.getDbName(), dbTable.getName(),
-				null);
+		String topic_name = checkExist(dbTable.getDbName(), dbTable.getName(), null);
 
 		if (null == topic_name)
 			return;
@@ -276,14 +261,11 @@ public class MyBinlogEventListener implements BinlogEventListener {
 			List<Column> rbc = pr.getBefore().getColumns();
 			List<Column> rac = pr.getAfter().getColumns();
 
-			Map<String, String> beforeMap = getDbTableColumnMap(rbc,
-					dbTable.getDbName(), dbTable.getName());
+			Map<String, String> beforeMap = getDbTableColumnMap(rbc, dbTable.getDbName(), dbTable.getName());
 
-			Map<String, String> afterMap = getDbTableColumnMap(rac,
-					dbTable.getDbName(), dbTable.getName());
+			Map<String, String> afterMap = getDbTableColumnMap(rac, dbTable.getDbName(), dbTable.getName());
 
-			if (null != beforeMap && null != afterMap && 0 < beforeMap.size()
-					&& 0 < afterMap.size()) {
+			if (null != beforeMap && null != afterMap && 0 < beforeMap.size() && 0 < afterMap.size()) {
 				jo.addProperty("before", gson.toJson(beforeMap));
 				jo.addProperty("after", gson.toJson(afterMap));
 				MonitorDbUtil.setSql(jo.toString(), topic_name);
@@ -293,15 +275,13 @@ public class MyBinlogEventListener implements BinlogEventListener {
 		MonitorDbUtil.setCfgBinlog();
 	}
 
-	private Map<String, String> getDbTableColumnMap(List<Column> cols,
-			String dbName, String tableName) throws ClassNotFoundException,
-			SQLException {
+	private Map<String, String> getDbTableColumnMap(List<Column> cols, String dbName, String tableName)
+			throws ClassNotFoundException, SQLException {
 
 		if (null == cols || 0 == cols.size())
 			return null;
 
-		List<DbTableColumn> dbTableColumns = DbUtil.getDbTableColumns(dbName
-				+ "." + tableName);
+		List<DbTableColumn> dbTableColumns = DbUtil.getDbTableColumns(dbName + "." + tableName);
 
 		if (null == dbTableColumns) {
 			logger.warn("dbTableColumns is null");

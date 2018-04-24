@@ -1,17 +1,17 @@
 package net.foreworld.yx.db;
 
-import net.foreworld.yx.db.model.SendData;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import net.foreworld.yx.model.SendData;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  *
@@ -36,8 +36,7 @@ public class HttpUtil {
 		TOPIC = topic;
 	}
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(HttpUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
 	@Scheduled(cron = "${publish.interval}")
 	public void sc() {
@@ -63,9 +62,8 @@ public class HttpUtil {
 			// <-- 1.0.1
 			formBody.add("detail", sd.getSql());
 
-			Request.Builder request = new Request.Builder().url(URL)
-					.post(formBody.build())
-					.addHeader("Content-Type", "application/json");
+			Request.Builder request = new Request.Builder().url(URL).post(formBody.build()).addHeader("Content-Type",
+					"application/json");
 
 			Response response = client.newCall(request.build()).execute();
 			if (response.isSuccessful()) {
