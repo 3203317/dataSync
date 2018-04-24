@@ -16,15 +16,15 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:component-scan base-package="net.foreworld.service"/>
+    <context:component-scan base-package="net.foreworld.yx"/>
 
     <context:property-placeholder location="classpath:config.properties"/>
 
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <property name="driverClassName" value="${jdbc.driverClass}"/>
-        <property name="url" value="${jdbc.url}"/>
-        <property name="username" value="${jdbc.user}"/>
-        <property name="password" value="${jdbc.password}"/>
+        <property name="driverClassName" value="${monitor.jdbc.driverClass}"/>
+        <property name="url" value="${monitor.jdbc.url}"/>
+        <property name="username" value="${monitor.jdbc.user}"/>
+        <property name="password" value="${monitor.jdbc.password}"/>
 
         <property name="filters" value="stat"/>
 
@@ -49,7 +49,7 @@
                 <value>classpath:mapper/*.xml</value>
             </array>
         </property>
-        <property name="typeAliasesPackage" value="net.foreworld.model"/>
+        <property name="typeAliasesPackage" value="net.foreworld.yx.monitor.model"/>
         <property name="plugins">
             <array>
                 <bean class="com.github.pagehelper.PageHelper">
@@ -69,9 +69,9 @@
     </bean>
 
     <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="net.foreworld.mapper"/>
+        <property name="basePackage" value="net.foreworld.yx.monitor.mapper"/>
         <!-- 3.2.2版本新特性，markerInterface可以起到mappers配置的作用，详细情况需要看Marker接口类 -->
-        <property name="markerInterface" value="net.foreworld.util.MyMapper"/>
+        <property name="markerInterface" value="net.foreworld.yx.monitor.MyMapper"/>
         <!-- 通用Mapper通过属性注入进行配置，默认不配置时会注册Mapper<T>接口
         <property name="properties">
             <value>
@@ -88,7 +88,7 @@
     <aop:aspectj-autoproxy/>
 
     <aop:config>
-        <aop:pointcut id="appService" expression="execution(* net.foreworld.service..*Service*.*(..))"/>
+        <aop:pointcut id="appService" expression="execution(* net.foreworld.yx.monitor.service..*Service*.*(..))"/>
         <aop:advisor advice-ref="txAdvice" pointcut-ref="appService"/>
     </aop:config>
 

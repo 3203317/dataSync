@@ -15,7 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
  *
  */
 @SpringBootApplication
-@ComponentScan("net.foreworld")
+@ComponentScan("net.foreworld.yx")
 public class RunWsServer implements CommandLineRunner {
 
 	@Resource(name = "wsServer")
